@@ -1,22 +1,103 @@
 <!doctype html>
+
 <head>
-     <title>Canvas Tutorial</title>
+    <title>Canvas Tutorial</title>
 </head>
+
 <body>
     <canvas id="gameCanvas" width="400" height="400"></canvas>
-<script>
-     var canvas , canvasContext;
+    <script>
+        var canvas, canvasContext;
 
-     window.onload = function(){
-         canvas = document.getElementById('gameCanvas'); 
-         canvasContext = canvas.getContext('2d');
-         
-         setInterval(mainloop, 1000/50);
-     }
+        window.onload = function() {
+            canvas = document.getElementById('gameCanvas');
+            canvasContext = canvas.getContext('2d');
 
-     function mainloop(){
-         
-     }
+            document.addEventListener('keydown', keyPressed);
+            document.addEventListener('keyup', keyReleased);
+
+            setInterval(mainloop, 1000 / 50);
+        }
+
+        var playerXpos = 0;
+        var playerYpos = 0;
+        var playerXspeed = 3;
+        var playerYspeed = 3;
+        const PLAYER_SIZE = 20;
+
+        const RIGHT_KEY = 39
+        const LEFT_KEY = 37
+        const UP_KEY = 38
+        const DOWN_KEY =40
+        
+        var rightkeypressed = false;
+        var leftkeypressed = false;
+        var upkeypressed = false;
+        var downkeypressed = false;
+
+        function mainloop() {
+            colorRect(0, 0, canvas.width, canvas.height, 'black');
+            colorRect(playerXpos, playerYpos, PLAYER_SIZE, PLAYER_SIZE, 'red');
+
+            playerMove();
+
+
+        }
+
+        function colorRect(x, y, w, h, c) {
+            canvasContext.fillStyle = c;
+            canvasContext.fillRect(x, y, w, h);
+        }
+
+        function playerMove() {
+            if(rightkeypressed){
+               playerXpos += playerXspeed;
+            }
+            if(leftkeypressed){
+               playerXpos -= playerXspeed;
+            }
+            if(upkeypressed){
+               playerYpos -= playerYspeed;
+            }
+            if(downkeypressed){
+               playerYpos += playerYspeed;
+            }
+            }
+
+        
+
+        function keyPressed(evt) {
+            console.log(evt.keyCode)
+            if (evt.keyCode == RIGHT_KEY) {
+                rightkeypressed = true;
+            }
+            if (evt.keyCode == LEFT_KEY) {
+                leftkeypressed = true;
+            }
+            if (evt.keyCode == UP_KEY) {
+                upkeypressed = true;
+            }
+            if (evt.keyCode == DOWN_KEY) {
+                downkeypressed = true;
+            }
+            }
+        
+
+        function keyReleased(evt) {
+            if (evt.keyCode == RIGHT_KEY) {
+                rightkeypressed = false;
+            }
+            if (evt.keyCode == LEFT_KEY) {
+                leftkeypressed = false;
+            }
+             if (evt.keyCode == UP_KEY) {
+                upkeypressed = false;
+            }
+             if (evt.keyCode == DOWN_KEY) {
+                downkeypressed = false;
+            }
+            }
+        
 
     </script>
 </body>
