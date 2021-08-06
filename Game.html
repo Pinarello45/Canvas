@@ -50,16 +50,16 @@
         }
 
         function playerMove() {
-            if(rightkeypressed){
+            if(rightkeypressed && playerXpos < canvas.width * 0.94){
                playerXpos += playerXspeed;
             }
-            if(leftkeypressed){
+            if(leftkeypressed && playerXpos > canvas.width * 0.01){
                playerXpos -= playerXspeed;
             }
             if(upkeypressed){
-               playerYpos -= playerYspeed;
+               playerYpos -= playerYspeed ;
             }
-            if(downkeypressed){
+            if(downkeypressed && playerYpos < canvas.width * 0.94){
                playerYpos += playerYspeed;
             }
             }
