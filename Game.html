@@ -1,34 +1,204 @@
 <!doctype html>
+
 <head>
-     <title>Canvas Tutorial</title>
+    <title>Canvas Tutorial</title>
 </head>
+
 <body>
-    <canvas id="gameCanvas" width="400" height="400"></canvas>
-<script>
-     var canvas , canvasContext;
+    <canvas id="gameCanvas" width="1000" height="800"></canvas>
+    <script>
+        var canvas, canvasContext;
 
-     window.onload = function(){
-         canvas = document.getElementById('gameCanvas'); 
-         canvasContext = canvas.getContext('2d');
-         
-         setInterval(mainloop, 1000/50);
-     }
-     
-     var playerXpos = 0;
-     var playerYpos = 0;
-     var playerXspeed = 5;
-     var playerYspeed = 4;
-     const PLAYER_SIZE = 20;
+        window.onload = function() {
+            canvas = document.getElementById('gameCanvas');
+            canvasContext = canvas.getContext('2d');
 
-     function mainloop(){
-         colorRect(0,0, canvas.width,canvas.height,'black');
-         colorRect(0,0,20,20,'red');
-     }
-    
-    function colorRect(x,y,w,h,c){
-        canvasContext.fillStyle = c;
-        canvasContext.fillRect(x,y,w,h);
-    }
+            document.addEventListener('keydown', keyPressed);
+            document.addEventListener('keyup', keyReleased);
+
+            setInterval(mainloop, 1000 / 50);
+        } //end function
+
+        var playerXpos = 600;
+        var playerYpos = 450;
+        var playerXspeed = 10;
+        var playerYspeed = 10;
+        const PLAYER_SIZE = 20;
+
+
+
+        const RIGHT_KEY = 39
+        const LEFT_KEY = 37
+        const UP_KEY = 38
+        const DOWN_KEY = 40
+
+
+        var rightkeypressed = false;
+        var leftkeypressed = false;
+        var upkeypressed = false;
+        var downkeypressed = false;
+        var score = 0;
+
+        var userName = '';
+        while (userName == '' || userName == null) {
+            userName = prompt('Whats your name?')
+        }
+
+        var eNum = 0;
+
+
+        var difficulty = '';
+        var pass = false;
+
+        while (pass == false) {
+            difficulty = prompt('Do you want easy or hard?');
+            difficulty = difficulty.toLocaleLowerCase()
+            if (difficulty == 'easy' || difficulty == 'hard') {
+                pass = true;
+            }
+        }
+
+        if (difficulty == 'easy') {
+            eNum = 10;
+        }
+
+        if (difficulty == 'hard') {
+            eNum = 50;
+        }
+
+        var enemies = [];
+        var settingUp = true;
+        var gamerun = true;
+
+        function mainloop() {
+            if (gamerun) {
+
+                colorRect(0, 0, canvas.width, canvas.height, 'black'); //background
+                colorRect(playerXpos, playerYpos, PLAYER_SIZE, PLAYER_SIZE, 'red'); //player 
+
+                if (settingUp) {
+                    for (var i = 0; i < eNum; i++) {
+                        makeEnemy();
+                    }
+                    settingUp = false;
+                }
+
+                playerMove();
+                enemyMove();
+                drawEnemy();
+                colorText('score: ' + score, 10, 20, '20px Arial', 'white') //score display while game is running
+
+            } else {
+                colorRect(0, 0, canvas.width, canvas.height, 'red')
+                colorText(userName + ' ' + 'scored:' + score, 100, 50, '40px Arial', 'black'); //end game display
+            }
+        } //end function
+
+        function makeEnemy() { //makes enemys
+            const ENEMY_SIZE = 50;
+            var enemyXpos = 0;
+            var enemyYpos = Math.floor(Math.random() * (canvas.height - ENEMY_SIZE));
+            var enemyXspeed = Math.floor(Math.random() * (14 - 2) + 2);
+            var enemyYspeed = 3;
+
+            var e = {
+                enemyXpos: enemyXpos,
+                enemyYpos: enemyYpos,
+                ENEMY_SIZE: ENEMY_SIZE,
+                enemyXspeed: enemyXspeed,
+                enemyYspeed: enemyYspeed
+            }
+
+            enemies.push(e);
+        } //end function
+
+        function drawEnemy() { //draws enemy 
+            enemies.forEach(function(e, i, array) {
+                colorRect(e.enemyXpos, e.enemyYpos, e.ENEMY_SIZE, e.ENEMY_SIZE, 'blue'); //makes colors of enemys
+            });
+        } //end function
+
+        function colorRect(x, y, w, h, c) { // colors stuff
+            canvasContext.fillStyle = c;
+            canvasContext.fillRect(x, y, w, h);
+        } //end function
+
+        function colorText(msg, x, y, f, c) { // colors text
+            canvasContext.font = f;
+            canvasContext.fillStyle = c;
+            canvasContext.fillText(msg, x, y);
+        } // end function
+
+        function playerMove() { //this are player barriers
+            if (rightkeypressed && playerXpos < canvas.width * 0.94) {
+                playerXpos += playerXspeed;
+            }
+            if (leftkeypressed && playerXpos > canvas.width * 0.01) {
+                playerXpos -= playerXspeed;
+            }
+            if (upkeypressed && playerYpos > canvas.height * 0.01) {
+                playerYpos -= playerYspeed;
+            }
+            if (downkeypressed && playerYpos < canvas.height * 0.969) {
+                playerYpos += playerYspeed;
+            }
+        } // end of function
+
+        function enemyMove() { //allows enemy to move
+            enemies.forEach(function(e, i, array) {
+                e.enemyXpos += e.enemyXspeed;
+
+                if (e.enemyXpos > canvas.width) {
+                    score++;
+                    e.enemyYpos = Math.floor(Math.random() * (canvas.height - e.ENEMY_SIZE));
+                    e.enemyXspeed = Math.floor(Math.random() * (8 - 2) + 2);
+                    e.enemyXpos = 0 - e.ENEMY_SIZE;
+                }
+
+                if (e.enemyXpos < playerXpos + PLAYER_SIZE &&
+                    e.enemyXpos + e.ENEMY_SIZE > playerXpos &&
+                    e.enemyYpos < playerYpos + PLAYER_SIZE &&
+                    e.enemyYpos + e.ENEMY_SIZE > playerYpos) {
+                    playerXpos = 0;
+                    gamerun = false;
+                }
+            });
+
+
+        } // end of function
+        
+        
+
+        function keyPressed(evt) { // when key pressed player moves
+            if (evt.keyCode == RIGHT_KEY) {
+                rightkeypressed = true;
+            }
+            if (evt.keyCode == LEFT_KEY) {
+                leftkeypressed = true;
+            }
+            if (evt.keyCode == UP_KEY) {
+                upkeypressed = true;
+            }
+            if (evt.keyCode == DOWN_KEY) {
+                downkeypressed = true;
+            }
+        } // end of function
+
+
+        function keyReleased(evt) { // when key released player stops
+            if (evt.keyCode == RIGHT_KEY) {
+                rightkeypressed = false;
+            }
+            if (evt.keyCode == LEFT_KEY) {
+                leftkeypressed = false;
+            }
+            if (evt.keyCode == UP_KEY) {
+                upkeypressed = false;
+            }
+            if (evt.keyCode == DOWN_KEY) {
+                downkeypressed = false;
+            }
+        } // end of function
 
     </script>
 </body>
